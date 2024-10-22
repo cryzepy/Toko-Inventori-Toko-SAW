@@ -4,7 +4,7 @@
     <!-- Pengaturan karakter dan viewport agar kompatibel dengan browser modern -->
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Bootstrap demo</title>
+    <title>Tambah Barang - Apliaksi Inventori Toko</title>
 
     <!-- Link ke CDN Bootstrap untuk menggunakan style dari framework Bootstrap -->
     <link
@@ -112,6 +112,10 @@
         const paramPrice = urlParams.get("price");
         const paramDescription = urlParams.get("description");
 
+
+        // mengubah title website menjadi edit barang
+        document.title = "Edit Barang - Apliaksi Inventori Toko"
+
         // Memformat kategori agar sesuai dengan value pada select option
         const formatCategory = paramCategory.replace(" ", "").toLowerCase();
 
@@ -138,7 +142,8 @@
           event.preventDefault();
 
           // Jika mode adalah edit, lakukan update data
-          if (mode == "edit") {
+          if (mode == "edit" && id != null) {
+
             // Mengirim data yang diubah ke server untuk diperbarui
             $.ajax({
               url: "" + "/api/update.php", // Mengakses endpoint untuk update data
