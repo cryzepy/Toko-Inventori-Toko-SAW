@@ -4,26 +4,31 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Apliaksi Inventori Toko</title>
+    <!-- Mengimpor CSS Bootstrap dari CDN -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous"
     />
+    <!-- Mengimpor ikon dari Bootstrap Icons -->
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
     />
   </head>
   <body>
+    <!-- Container utama halaman dengan latar belakang dan lebar penuh -->
     <div
       style="background: #121212; min-height: 100vh; min-width: 100vw"
       class="container d-flex flex-column justify-content-center align-items-center"
     >
+      <!-- Judul aplikasi -->
       <h1 class="text-white mb-5">Aplikasi Inventori Toko</h1>
       <div
         class="d-flex flex-column justify-content-start align-items-start w-auto"
       >
+        <!-- Tombol untuk menambah data, diarahkan ke halaman edit.html -->
         <a href="/edit.html" class="text-decoration-none">
           <button class="btn btn-success d-flex gap-2 mb-4">
             <i class="bi bi-bag-plus-fill"></i>
@@ -31,43 +36,45 @@
           </button>
         </a>
 
+        <!-- Div untuk menampilkan daftar inventori -->
         <div class="daftar-inventori">
           <h1 class="text-white fs-2">loading...</h1>
+          <!-- Teks default yang akan diganti dengan tabel setelah data di-load -->
         </div>
       </div>
     </div>
 
-    <!-- import jquery untuk manipulasi DOM -->
+    <!-- Import jQuery untuk manipulasi DOM -->
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <!-- Mengimpor SweetAlert untuk notifikasi popup -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-      // ketika halaman diload
+      // Ketika halaman selesai diload, panggil fungsi untuk mengambil data dari database
       $(function () {
-        // ambil data saat halaman pertama kali di-load
         ambildataDiDatabase();
       });
 
+      // Fungsi untuk mengambil data dari API
       function ambildataDiDatabase() {
         $.ajax({
-          url: "" + "/api/read.php",
-          method: "GET",
+          url: "" + "/api/read.php", // Mengambil data dari API read.php
+          method: "GET", // Menggunakan metode GET
           success: (response) => {
-            // ubah response dari string ke dalam bentuk JSON
+            // Mengubah response dari string menjadi format JSON
             const data = JSON.parse(response);
-
-            // tambahkan data ke tabel
+            // Memanggil fungsi untuk menulis data ke tabel
             writeDataToTable(data.data);
           },
           error: (err) => {
-            console.log(err);
+            console.log(err); // Menampilkan error di console jika terjadi kesalahan
           },
         });
       }
 
+      // Fungsi untuk menampilkan data dalam tabel di halaman
       function writeDataToTable(data) {
-        // view ketika data tidak ada
-        console.log(data)
+        // Jika data kosong, tampilkan pesan "Tidak ada data"
         if (!data.length) {
           $(".daftar-inventori")
             .empty()
@@ -75,9 +82,7 @@
           return;
         }
 
-        // view ketika data ada
-
-        // buat tabel
+        // Jika ada data, buat tabel dengan Bootstrap
         const tabel = $(`<table class="table align-middle w-auto">
                 <thead class="table-dark">
                   <tr>
@@ -94,12 +99,12 @@
                 </tbody>
             </table>`);
 
-        // tambahkan tabel ke div daftar inventori
+        // Menghapus konten yang ada dan menggantinya dengan tabel
         $(".daftar-inventori").empty().append(tabel);
 
-        // buat daftar inventori di tabel dengan menggunakan perulangan
+        // Menambahkan data ke tabel menggunakan perulangan
         data.forEach((inventori, index) => {
-          // menformat harga agar sesuai dengan format rupiah
+          // Format harga menjadi format mata uang rupiah
           const price = inventori.price;
           const formattedPrice = price.toLocaleString("id-ID", {
             style: "currency",
@@ -107,6 +112,7 @@
             minimumFractionDigits: 0,
             maximumFractionDigits: 0,
           });
+          // Membuat baris baru untuk setiap item inventori
           const row = `<tr class="table-secondary">
                         <th scope="row">${index + 1}</th>
                         <td>${inventori.name}</td>
@@ -133,12 +139,13 @@
                             </button>
                         </td>
                       </tr>`;
+          // Menambahkan baris ke body tabel
           $("#body-tabel").append(row);
         });
 
-        // handle delete button
+        // Event handler untuk tombol hapus
         $(".delete-inventori").click(function (event) {
-          const id = $(this).data("id");
+          const id = $(this).data("id"); // Mengambil id inventori
           Swal.fire({
             text: `Apakah kamu yakin ingin menghapus data dari database?`,
             showDenyButton: true,
@@ -149,11 +156,11 @@
             icon: "question",
           }).then((result) => {
             if (result.isDenied) {
-              // hapus data dari database
+              // Menghapus data dari database jika user memilih 'lanjutkan'
               $.ajax({
-                url: "" + "/api/delete.php",
+                url: "" + "/api/delete.php", // API untuk delete
                 method: "POST",
-                data: { id },
+                data: { id }, // Kirim id item yang akan dihapus
                 success: (response) => {
                   Swal.mixin({
                     toast: true,
@@ -170,7 +177,7 @@
                     title: "Sukses menghapus user dari database",
                   });
 
-                  // update data dari database
+                  // Memperbarui tabel dengan data terbaru
                   ambildataDiDatabase();
                 },
                 error: (err) => {
@@ -184,7 +191,7 @@
           });
         });
 
-        // handle show description
+        // Event handler untuk menampilkan deskripsi produk
         $(".btn-show-description").click(function (event) {
           const description = $(this).data("description");
           if (description) {
@@ -200,7 +207,7 @@
           }
         });
 
-        // handle edit data
+        // Event handler untuk tombol edit, membawa user ke halaman edit dengan parameter di URL
         $(".btn-edit-data").click(function (event) {
           const name = $(this).data("name");
           const id = $(this).data("id");
